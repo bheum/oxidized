@@ -74,13 +74,16 @@ class Git < Output
     def version node, group
       begin
         repo, path = yield_repo_and_path(node, group)
-
-        repo = Rugged::Repository.new repo
+        tab  = []
+        begin
+          repo = Rugged::Repository.new repo
+        rescue
+          return tab
+        end
         walker = Rugged::Walker.new(repo)
         walker.sorting(Rugged::SORT_DATE)
         walker.push(repo.head.target)
         i = -1
-        tab  = []
         walker.each do |commit|
           if commit.diff(paths: [path]).size > 0
             hash = {}
